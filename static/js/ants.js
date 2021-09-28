@@ -12,6 +12,7 @@ class Ant {
         this.maxforce = 0.05;
 
         this.hasFood = false;
+        this.previousLocations = [];
     }
 
     run() {
@@ -48,8 +49,9 @@ class Ant {
         // Search for the food if the ant has none
         if (this.hasFood == false) {
             this.searchForFood();
-        }
-        
+        } //else if food in range go to it and pick it up
+        //else if has food bring it back to the nest
+    
         // Update velocity
         this.velocity.add(this.acceleration);
         // Limit speed
@@ -62,7 +64,41 @@ class Ant {
     }
 
     searchForFood() {
-        this.velocity.add(random(-0.2,0.2),random(-0.2,0.2));
+        this.acceleration.add(this.separate(ants));
+        this.velocity.add(random(-0.2,0.2),random(-0.1,0.1));
+    }
+
+    //makes the ants stay apart from eachother
+    separate(ants) {
+        let desiredseparation = 10;
+        let steer = createVector(0, 0);
+        let count = 0;
+        // For every boid in the system, check if it's too close
+        for (let i = 0; i < ants.length; i++) {
+          let d = p5.Vector.dist(this.position, ants[i].position);
+          // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+          if ((d > 0) && (d < desiredseparation)) {
+            // Calculate vector pointing away from neighbor
+            let diff = p5.Vector.sub(this.position, ants[i].position);
+            diff.normalize();
+            diff.div(d); // Weight by distance
+            steer.add(diff);
+            count++; // Keep track of how many
+          }
+        }
+        // Average -- divide by how many
+        if (count > 0) {
+          steer.div(count);
+        }
+        // As long as the vector is greater than 0
+        if (steer.mag() > 0) {
+            // Implement Reynolds: Steering = Desired - Velocity
+            steer.normalize();
+            steer.mult(this.maxspeed);
+            steer.sub(this.velocity);
+            steer.limit(this.maxforce);
+        }
+        return steer;
     }
 
 
