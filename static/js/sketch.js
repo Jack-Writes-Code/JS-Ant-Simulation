@@ -5,7 +5,7 @@ let density = 20;
 
 function setup() {
   //Set size of window
-  createCanvas(1200, 800);
+  createCanvas(600, 600);
 
   //Creates the nest
   nest = new Nest(width/2, height/2);
@@ -19,7 +19,7 @@ function setup() {
 
   // Add an initial set of ants into the system
   for (let i = 0; i < 200; i++) {
-    ants[i] = new Ant(nest.x, nest.y);
+    ants[i] = new Ant(nest.position.x, nest.position.y);
   }
 }
 

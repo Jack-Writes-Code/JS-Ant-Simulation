@@ -2,13 +2,12 @@ class Nest {
     constructor(x, y) {
         this.width = 50;
         this.height = 50;
-        this.x = x;
-        this.y = y;
+        this.position = createVector(x, y);
     }
 
     render() {
-        fill(255);
+        fill(165,42,42);
         noStroke();
-        ellipse(this.x, this.y, this.width, this.height);
+        ellipse(this.position.x, this.position.y, this.width, this.height);
     }
 }

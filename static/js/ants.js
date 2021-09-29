@@ -8,9 +8,10 @@ class Ant {
         this.acceleration = createVector(0,0);
         this.velocity = p5.Vector.random2D();
 
-        this.maxspeed = 0.5;
+        this.maxspeed = random(0.3,0.7);
         this.maxforce = 0.05;
 
+        this.seesFood = false;
         this.hasFood = false;
         this.previousLocations = [];
     }
@@ -27,46 +28,73 @@ class Ant {
         ellipse(this.position.x, this.position.y, this.width, this.height);
     }
 
+    //Update ant location
+    update() {
+        // Search for the food if the ant has none and sees none
+        if (this.hasFood == true) {
+            this.moveTo(nest);
+        } else if (this.seesFood == true) {
+            this.moveTo(this.target);
+        } else {
+            this.searchForFood();
+        }
+        
+        
+        this.velocity.add(this.acceleration);// Update velocity
+        this.velocity.limit(this.maxspeed);// Limit speed
+        this.position.add(this.velocity);
+        this.acceleration.mult(0);// Reset acceleration to 0 each cycle
+        this.onScreen();//keeps them onscreen
+    }
+
+    moveTo(target) {
+        let direction = p5.Vector.sub(target.position, this.position);
+        direction.normalize();
+        this.velocity.add(direction);
+        this.velocity.add(random(-0.3,0.3), random(-0.3,0.3));
+    }
+
+    moveAway(target) {
+        let direction = p5.Vector.sub(this.position, target.position);
+        direction.normalize();
+        this.velocity.add(direction);
+        this.velocity.add(random(-0.3,0.3), random(-0.3,0.3));
+    }
+
     //Method to keep ants onscreen
     onScreen() {
-        let offset = 2;
-        if (this.position.x > width+offset) {
-            this.position.x = -offset;
+        if (this.position.x > width) {
+            this.moveTo(nest);
         }
-        if (this.position.x < -offset) {
-            this.position.x = width+offset;
+        if (this.position.x < 0) {
+            this.moveTo(nest);
         }
-        if (this.position.y > height+offset) {
-            this.position.y = -offset;
+        if (this.position.y > height) {
+            this.moveTo(nest);
         }
-        if (this.position.y < -offset) {
-            this.position.y = height+offset;
+        if (this.position.y < 0) {
+            this.moveTo(nest);
         }
     }
 
-    //Update ant location
-    update() {
-        // Search for the food if the ant has none
-        if (this.hasFood == false) {
-            this.searchForFood();
-        } //else if food in range go to it and pick it up
-        //else if has food bring it back to the nest
-    
-        // Update velocity
-        this.velocity.add(this.acceleration);
-        // Limit speed
-        this.velocity.limit(this.maxspeed);
-        this.position.add(this.velocity);
-        // Reset acceleration to 0 each cycle
-        this.acceleration.mult(0);
-        //keeps them onscreen
-        this.onScreen();
-    }
+
 
     searchForFood() {
         this.acceleration.add(this.separate(ants));
         this.velocity.add(random(-0.2,0.2),random(-0.1,0.1));
+        
+        for (let i = 0; i < food.length; i++) {
+            let diff = p5.Vector.dist(this.position, food[i].position);
+            if (diff <= 50) {
+                this.seesFood = true;
+                this.target = food[i];
+                break;
+            }
+        }
     }
+
+
+
 
     //makes the ants stay apart from eachother
     separate(ants) {
