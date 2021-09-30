@@ -1,19 +1,18 @@
 // Ant class
 class Ant {
     constructor(x, y) {
+        //Visual properties
         this.position = createVector(x, y);
-        this.width = 2;
-        this.height = 2;
-
+        this.width = 3;
+        this.height = 3;
+        this.colour = 80;
+        //Movement stats
         this.acceleration = createVector(0,0);
         this.velocity = p5.Vector.random2D();
-
         this.maxspeed = random(0.3,0.7);
         this.maxforce = 0.05;
-
-        this.seesFood = false;
-        this.hasFood = false;
-        this.previousLocations = [];
+        //Behaviour Status
+        this.status = "SearchingForFood";
     }
 
     run() {
@@ -23,23 +22,33 @@ class Ant {
 
     //Draw ant as a circle
     render() {
-        fill(80);
-        stroke(50);
+        fill(this.colour);
+        noStroke();
         ellipse(this.position.x, this.position.y, this.width, this.height);
     }
 
     //Update ant location
     update() {
-        // Search for the food if the ant has none and sees none
-        if (this.hasFood == true) {
-            this.moveTo(nest);
-        } else if (this.seesFood == true) {
-            this.moveTo(this.target);
-        } else {
-            this.searchForFood();
+        // Main behaviour state
+        switch(this.status) {
+            case "SearchingForFood":
+                this.searchForFood();
+                break;
+            case "SeesTrail":
+                console.log("Trail spotted.")
+                break;
+            case "SeesFood":
+                this.moveTo(this.target);
+                this.tryPickUp(this.target);
+                //Leave trail to lead others to food
+                break;
+            case "HasFood":
+                this.moveTo(nest);
+                this.dropFood(nest);
+                //Leave trail to home which can be backtracked
+                break;
         }
-        
-        
+
         this.velocity.add(this.acceleration);// Update velocity
         this.velocity.limit(this.maxspeed);// Limit speed
         this.position.add(this.velocity);
@@ -77,8 +86,6 @@ class Ant {
         }
     }
 
-
-
     searchForFood() {
         this.acceleration.add(this.separate(ants));
         this.velocity.add(random(-0.2,0.2),random(-0.1,0.1));
@@ -86,15 +93,35 @@ class Ant {
         for (let i = 0; i < food.length; i++) {
             let diff = p5.Vector.dist(this.position, food[i].position);
             if (diff <= 50) {
-                this.seesFood = true;
+                this.status = "SeesFood";
                 this.target = food[i];
-                break;
             }
         }
     }
 
+    //Test to see if we can pick up the food
+    tryPickUp(food) {
+        let distanceToTarget = p5.Vector.dist(this.position, food.position);
+        if (distanceToTarget < 0.1) {
+            //This needs to remove the food and set
+            //ants food carrying status to true so it goes home
+            this.status = "HasFood";
+            this.colour = 130;
+            console.log(distanceToTarget);
+        }
+    }
 
-
+    //Test to see if we can pick up the food
+    dropFood(nest) {
+        let distanceToTarget = p5.Vector.dist(this.position, nest.position);
+        if (distanceToTarget < 0.1) {
+            //This needs to remove the food and set
+            //ants food carrying status to true so it goes home
+            this.status = "SearchingForFood";
+            this.colour = 255;
+            console.log(distanceToTarget);
+        }
+    }
 
     //makes the ants stay apart from eachother
     separate(ants) {
@@ -128,6 +155,5 @@ class Ant {
         }
         return steer;
     }
-
 
 }

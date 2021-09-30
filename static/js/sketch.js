@@ -13,12 +13,12 @@ function setup() {
   //Creates our food
   const foodx = random(0,width);
   const foody = random(0,height);
-  for (let i = 0; i < density*3; i++) {
+  for (let i = 0; i < density*10; i++) {
     food[i] = new Food(foodx, foody, density);
   }
 
   // Add an initial set of ants into the system
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 250; i++) {
     ants[i] = new Ant(nest.position.x, nest.position.y);
   }
 }
