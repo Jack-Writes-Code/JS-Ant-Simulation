@@ -46,7 +46,6 @@ class Ant {
                 this.moveTo(nest);
                 this.dropFood(nest);
                 //Leave trail to home which can be backtracked
-                break;
         }
 
         this.velocity.add(this.acceleration);// Update velocity
