@@ -15,4 +15,4 @@ WORKDIR /app
 EXPOSE 80/tcp
 
 #CMD ["python", "main.py"]
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "wsgi:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "wsgi:app"]
