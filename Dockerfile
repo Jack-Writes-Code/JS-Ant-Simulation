@@ -12,7 +12,7 @@ RUN pip install -r requirements.txt
 COPY . /app
 WORKDIR /app
 
-EXPOSE 8080/tcp
+EXPOSE 80/tcp
 
 #CMD ["python", "main.py"]
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "wsgi:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "wsgi:app"]
