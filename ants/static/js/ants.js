@@ -30,10 +30,11 @@ class Ant {
     //Update ant location
     update() {
         // Main behaviour state
+        if (this.status != "HasFood") {
+            this.searchForFood();
+        }
+
         switch(this.status) {
-            case "SearchingForFood":
-                this.searchForFood();
-                break;
             case "SeesTrail":
                 console.log("Trail spotted.")
                 break;
@@ -89,36 +90,32 @@ class Ant {
         this.acceleration.add(this.separate(ants));
         this.velocity.add(random(-0.2,0.2),random(-0.1,0.1));
         
-        for (let i = 0; i < food.length; i++) {
-            let diff = p5.Vector.dist(this.position, food[i].position);
-            if (diff <= 50) {
+        for (let foodItem in food) {
+            let diff = p5.Vector.dist(this.position, food[foodItem].position);
+            let nearest = 1000000;
+            if (diff <= 50 && diff <= nearest) {
                 this.status = "SeesFood";
-                this.target = food[i];
+                this.target = food[foodItem];
             }
         }
     }
 
     //Test to see if we can pick up the food
-    tryPickUp(food) {
-        let distanceToTarget = p5.Vector.dist(this.position, food.position);
-        if (distanceToTarget < 0.1) {
-            //This needs to remove the food and set
-            //ants food carrying status to true so it goes home
+    tryPickUp(foodItem) {
+        let distanceToTarget = p5.Vector.dist(this.position, foodItem.position);
+        if (distanceToTarget < 0.12) {
+            foodItem.destroy(food);
             this.status = "HasFood";
             this.colour = 130;
-            console.log(distanceToTarget);
         }
     }
 
-    //Test to see if we can pick up the food
     dropFood(nest) {
         let distanceToTarget = p5.Vector.dist(this.position, nest.position);
         if (distanceToTarget < 0.1) {
-            //This needs to remove the food and set
-            //ants food carrying status to true so it goes home
             this.status = "SearchingForFood";
             this.colour = 255;
-            console.log(distanceToTarget);
+            nest.foodCount++;
         }
     }
 

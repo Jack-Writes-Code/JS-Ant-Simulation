@@ -3,6 +3,7 @@ class Nest {
         this.width = 50;
         this.height = 50;
         this.position = createVector(x, y);
+        this.foodCount = 0;
     }
 
     render() {

@@ -1,7 +1,7 @@
 let ants = [];
 let nest;
 let food = [];
-let density = 20;
+let density = 5;
 
 function setup() {
   //Set size of window
@@ -16,6 +16,7 @@ function setup() {
   for (let i = 0; i < density*10; i++) {
     food[i] = new Food(foodx, foody, density);
   }
+  console.log(food.length);
 
   // Add an initial set of ants into the system
   for (let i = 0; i < 250; i++) {
@@ -31,8 +32,8 @@ function draw() {
   for (let i = 0; i < ants.length; i++) {
     ants[i].run();
   }
-  for (let i = 0; i < food.length; i++) {
-    food[i].render();
+  for (foodItem in food) {
+    food[foodItem].render();
   }
   //Render the nest
   nest.render();
