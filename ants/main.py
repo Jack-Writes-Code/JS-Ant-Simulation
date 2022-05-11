@@ -3,9 +3,9 @@ from flask import Flask, request, send_from_directory, render_template
 app = Flask(__name__)
 
 
-@app.route("/")
+@app.route("/ants")
 def index():
-    return render_template("index.html")
+    return render_template("ants.html")
 
 
 if __name__ == "__main__":

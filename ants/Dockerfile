@@ -12,7 +12,7 @@ COPY . /app
 WORKDIR /app
 
 #Uncomment for development server
-#CMD ["python", "main.py"]
+CMD ["python", "main.py"]
 
 #Uncomment for deployment server
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "wsgi:app"]
+#CMD ["gunicorn", "--bind", "0.0.0.0:8080", "wsgi:app"]

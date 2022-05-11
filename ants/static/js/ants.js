@@ -1,4 +1,41 @@
-// Ant class
+let ants = [];
+let pheromones = [];
+let nest;
+let food = [];
+let density = 5;
+
+class Nest {
+    constructor(x, y) {
+        this.width = 50;
+        this.height = 50;
+        this.position = createVector(x, y);
+        this.foodCount = 0;
+    }
+
+    render() {
+        fill(165,42,42);
+        noStroke();
+        ellipse(this.position.x, this.position.y, this.width, this.height);
+    }
+}
+
+class Food {
+    constructor(x, y, density) {
+        this.position = createVector(x + random(-density/2,density/2), y + random(-density/2,density/2));
+    }
+
+    render() {
+        fill(255,0,0);
+        noStroke();
+        ellipse(this.position.x, this.position.y, 2, 2);
+    }
+
+    destroy(food) {
+        this.index = food.indexOf(this);
+        food.splice(this.index, 1);
+    }
+}
+
 class Ant {
     constructor(x, y) {
         //Visual properties
@@ -16,20 +53,17 @@ class Ant {
     }
 
     run() {
-        this.update();//calculates new movement
-        this.render();//draws them in their position
+        this.update();
+        this.render();
     }
 
-    //Draw ant as a circle
     render() {
         fill(this.colour);
         noStroke();
         ellipse(this.position.x, this.position.y, this.width, this.height);
     }
 
-    //Update ant location
     update() {
-        // Main behaviour state
         if (this.status != "HasFood") {
             this.searchForFood();
         }
@@ -41,12 +75,13 @@ class Ant {
             case "SeesFood":
                 this.moveTo(this.target);
                 this.tryPickUp(this.target);
-                //Leave trail to lead others to food
+                pheromones.push(this.position.x, this.position.y, Date.now());
                 break;
             case "HasFood":
                 this.moveTo(nest);
                 this.dropFood(nest);
                 //Leave trail to home which can be backtracked
+                break;
         }
 
         this.velocity.add(this.acceleration);// Update velocity
@@ -98,6 +133,17 @@ class Ant {
                 this.target = food[foodItem];
             }
         }
+        for (let pheromone in pheromones) {
+            let diff = p5.Vector.dist(this.position, pheromones[pheromone].position);
+            let nearest = 1000000;
+            if (diff <= 50 && diff <= nearest) {
+                if (this.status != "Sees|Trail") {
+                    this.status = "SeesTrail";
+                    this.target = pheromones[pheromone];
+                }
+                }
+            }
+        }
     }
 
     //Test to see if we can pick up the food
@@ -126,20 +172,20 @@ class Ant {
         let count = 0;
         // For every boid in the system, check if it's too close
         for (let i = 0; i < ants.length; i++) {
-          let d = p5.Vector.dist(this.position, ants[i].position);
-          // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
-          if ((d > 0) && (d < desiredseparation)) {
-            // Calculate vector pointing away from neighbor
-            let diff = p5.Vector.sub(this.position, ants[i].position);
-            diff.normalize();
-            diff.div(d); // Weight by distance
-            steer.add(diff);
-            count++; // Keep track of how many
-          }
+            let d = p5.Vector.dist(this.position, ants[i].position);
+            // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+            if ((d > 0) && (d < desiredseparation)) {
+                // Calculate vector pointing away from neighbor
+                let diff = p5.Vector.sub(this.position, ants[i].position);
+                diff.normalize();
+                diff.div(d); // Weight by distance
+                steer.add(diff);
+                count++; // Keep track of how many
+            }
         }
         // Average -- divide by how many
         if (count > 0) {
-          steer.div(count);
+            steer.div(count);
         }
         // As long as the vector is greater than 0
         if (steer.mag() > 0) {
@@ -151,5 +197,27 @@ class Ant {
         }
         return steer;
     }
+}
 
+function setup() {
+    createCanvas(800, 800);
+
+    nest = new Nest(width/2, height/2);
+
+    const foodx = random(0,width);
+    const foody = random(0,height);
+    for (let i = 0; i < density*10; i++) {
+        food[i] = new Food(foodx, foody, density);
+    }
+
+    for (let i = 0; i < 250; i++) {
+        ants[i] = new Ant(nest.position.x, nest.position.y);
+    }
+}
+
+function draw() {
+    background(200);
+    for (ant in ants) { ants[ant].run(); }
+    for (foodItem in food) { food[foodItem].render(); }
+    nest.render();
 }
